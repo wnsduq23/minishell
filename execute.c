@@ -6,28 +6,81 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:19:35 by junykim           #+#    #+#             */
-/*   Updated: 2022/12/28 16:23:24 by junykim          ###   ########.fr       */
+/*   Updated: 2022/12/29 20:50:43 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	execute_cmds(t_tree *tree)
+void	delete_node(t_tree *node, int *status, t_shell *shell)
 {
-	int		status; // signal을 담는 status
-	t_cmd	cmd;
-
-	while (1)
+	(void)status;
+	(void)shell;
+	if (node != NULL)
 	{
-		cmd = inorder(tree); // 노드에 저장되어 있는 cmd의 숫자를 반환 후 다음 노드로 
-		if (cmd == DOUBLE_PIPE)
-			return (do_DP(tree->cmd));
-		if (cmd == DOUBLE_AMPER)
-			return (do_DA(tree->cmd));
-		if (cmd == SINGLE_CMD)
-			return (do_SC(tree->cmd));
-		if (cmd == SINGLE_PIPE)
-			return (do_SP(tree->cmd));
+		if ((node)->redirection != NULL)
+			ft_lstclear(&node->redirection, delete_token);
+		if (node->token != NULL)
+			ft_lstclear(&node->token, delete_token);
+		free(node);
+		node = NULL;
 	}
-	return (status);
+}
+
+/* 
+ * if token = "ls" "-al"
+ * tok -> "ls"
+ * cmd -> "/bin/ls/ls"
+ */
+void	execute_node(t_tree *node, int *status, t_shell *shell)
+{
+	t_token	*tok;
+	t_cmd	tok_type; 
+	char	*cmd;
+
+	tok = NULL;
+	if (node->token != NULL)
+		tok->token = node->token[0];
+	if (tok->token != NULL && tok_type != SIMPLE_CMD)
+		exec_operator(node, tok, status, shell);
+	cmd = get_cmd(shell->paths, tok->token);
+	if (cmd == NULL)
+	{
+		ft_perror(cmd, ": command not found");
+		give_signal();
+		status = 127;
+		return ;
+	}
+	exec_cmd(node, cmd ,shell);
+}
+
+
+void	inorder_recur(t_tree *node, int *status, t_callback_func callback, \
+			t_shell *shell)
+{
+	if (node == NULL)
+		return ;
+	if (callback != delete_node)
+	{
+		inorder_recur(node->left, status, callback, shell);
+		callback(node, status, shell);
+		inorder_recur(node->right, status, callback, shell);
+	}
+	else if (callback == delete_node)
+	{
+		inorder_recur(node->left, status, callback, shell);
+		inorder_recur(node->right, status, callback, shell);
+		callback(node, status, shell);
+	}
+}
+
+int	execute(t_tree *tree, t_shell *shell)
+{
+	int	status;
+
+	inorder_recur(tree, &status, execute_node, shell);
+	wait_every_pid(shell);
+	inorder_recur(tree, &status, delete_node, shell);
+	//g_is_sig_interrupt = false;
+	return (WEXITSTATUS(shell->last_cmd_wstatus));
 }

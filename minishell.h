@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:41:12 by junykim           #+#    #+#             */
-/*   Updated: 2022/12/29 11:54:44 by hwichoi          ###   ########.fr       */
+/*   Updated: 2022/12/29 20:38:58 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,16 +19,20 @@
 // access
 # include <unistd.h>
 
+//perror
+# include <stdio.h>
+
 # include "libft/libft.h"
 
 typedef enum e_cmd
 {
 	DOUBLE_PIPE,
-	DOUBLE_AMPER,
+	DOUBLE_AMPERSAND,
 	SINGLE_QUOT,
 	DOUBLE_QUOT,
 	REDIRECT,
-	SIMPLE_CMD
+	SIMPLE_CMD,
+	BRACKET
 }	t_cmd;
 
 typedef struct s_token
@@ -53,10 +57,35 @@ typedef struct s_tree
 typedef struct s_shell
 {
 	char	**env;
+	int		last_cmd_wstatus;
+	char	**paths;
 }	t_shell;
+
+/*
+ * argv	: "ls" "-al" 
+ * cmd	: "ls -al"
+ * paths : "/bin/ls"
+ */
+typedef struct s_cmds
+{
+	char	**argv;
+	char	*cmd;
+}			t_cmds;
+
+// ================================
+//			execute.c
+// ================================
+typedef void(*t_callback_func)(t_tree *, int *, t_shell *);
+void	delete_node(t_tree *node, int *status, t_shell *shell);
+void	execute_node(t_tree *node, int *status, t_shell *shell);
+void	inorder_recur(t_tree *node, int *status, t_callback_func callback, \
+			t_shell *shell);
+int		execute(t_tree *tree, t_shell *shell);
 
 // ================================
 //			cmd1.c
 // ================================
 char	*get_cmd(char **paths, char *cmd);
+void	exec_cmd(t_tree *node, char *cmd, t_shell *shell);
+void	exec_operator(t_tree *node, t_token *tok, int *status, t_shell *shell);
 #endif

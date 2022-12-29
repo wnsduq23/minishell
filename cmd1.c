@@ -6,11 +6,13 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 15:15:48 by junykim           #+#    #+#             */
-/*   Updated: 2022/12/28 17:17:16 by junykim          ###   ########.fr       */
+/*   Updated: 2022/12/29 20:51:38 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+#include <sys/wait.h>
+# define SUCCESS 0
 
  char	*get_cmd(char **paths, char *cmd)
 {
@@ -29,75 +31,49 @@
 	}
 	return (NULL);
 }
-	
-
-//TODO: : 잘못된 cmd인 경우 오류 출력만 하고 계속 수행한다.  
-//WARN: : 
-
-int	do_SC(char **paths, char *cmd)
-{
-	int	status;
-	char	*a;
-
-	a = get_cmd(paths, cmd);
-	if (a == NULL)
-	{
-		perror();
-		return (status); // 127 signal return 
-	}
-	execve(a, argv[],envp);
-	return (status); // success
-}
 
 //XXX: : A || B if A fail, execute B
-int	do_DP(t_tree *tree, char **paths, char *cmd)
+//XXX: : A && B , if A is success, execute B
+//NOTE: : it isn't be forked ? 
+//
+void	exec_operator(t_tree *node, t_token *tok, int *status, t_shell *shell)
 {
-	int	status;
-	char	*a;
-
-	if (tree->left->left->cmd == success) // A success
+	if (tok->type == BRACKET)
+		*status = exec_subshell(node, tok->str, shell);
+	else if (tok->type == DOUBLE_AMPERSAND)
 	{
-		//B 수행 X
-		return (status);
+		wait_every_pid(shell);
+		if (WEXITSTATUS(shell->last_cmd_wstatus) != SUCCESS)
+			*status = 1;
 	}
-	else
+	else if (tok->type == DOUBLE_PIPE)
 	{
-		a = get_cmd(paths, cmd);
-		if (a == NULL)
-		{
-			perror();
-			return (status); // 127 signal return 
-		}
-		execve(a, argv[],envp); // av[]는 파싱부에서 자른 거 갖고오는거임
+		wait_every_pid(shell);
+		if (WEXITSTATUS(shell->last_cmd_wstatus) == SUCCESS)
+			*status = 1;
 	}
-	return (status);
+	return ;
 }
 
-//XXX: : A || B , if A is success, execute B
-int	do_DA(t_tree *tree, char **paths, char *cmd)
+//TODO: : 잘못된 cmd인 경우 오류 출력만 하고 계속 수행한다.  
+//WARN: : fork -> child process does
+void	exec_cmd(t_tree *node, char *cmd, t_shell *shell)
 {
-	int	status;
+	int		fd[2];
+	pid_t	pid;
 
-	if (tree->left->left->cmd == FAIL) // A가 fail
+	if (pipe(fd) == -1)
 	{
-		//B 수행 X
-		return (status);
+		ft_perror("pipe error");
+		return ;
 	}
-	else
+	pid = fork();
+	if (pid == -1)
 	{
-		a = get_cmd(paths, cmd);
-		if (a == NULL)
-		{
-			perror();
-			return (status); // 127 signal return 
-		}
-		execve(a, argv[],envp); // av[]는 파싱부에서 자른 거 갖고오는거임
+		ft_perror("fork error");
+		return ;
 	}
-	return (status);
-}
-
-int	do_SP()
-{
-	fork(); 
-	
+	if (pid == 0) 
+		child_process();
+	execve(cmd, node->token, shell->env);
 }
