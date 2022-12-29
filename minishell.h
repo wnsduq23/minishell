@@ -6,14 +6,20 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:41:12 by junykim           #+#    #+#             */
-/*   Updated: 2022/12/28 17:42:02 by hwichoi          ###   ########.fr       */
+/*   Updated: 2022/12/29 11:54:44 by hwichoi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+// free, malloc
+# include <stdlib.h>
+
+// access
 # include <unistd.h>
+
+# include "libft/libft.h"
 
 typedef enum e_cmd
 {
@@ -49,4 +55,8 @@ typedef struct s_shell
 	char	**env;
 }	t_shell;
 
+// ================================
+//			cmd1.c
+// ================================
+char	*get_cmd(char **paths, char *cmd);
 #endif
