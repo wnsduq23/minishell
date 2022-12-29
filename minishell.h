@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:41:12 by junykim           #+#    #+#             */
-/*   Updated: 2022/12/29 11:54:44 by hwichoi          ###   ########.fr       */
+/*   Updated: 2022/12/29 21:24:52 by hwichoi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,13 +28,14 @@ typedef enum e_cmd
 	SINGLE_QUOT,
 	DOUBLE_QUOT,
 	REDIRECT,
-	SIMPLE_CMD
+	SIMPLE_CMD,
+	BRACKET
 }	t_cmd;
 
 typedef struct s_token
 {
 	t_cmd			type;
-	char			*token;
+	char			*content;
 	struct s_token	*prev;
 	struct s_token	*next;
 }	t_token;
