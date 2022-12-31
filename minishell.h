@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:41:12 by junykim           #+#    #+#             */
-/*   Updated: 2022/12/29 20:38:58 by junykim          ###   ########.fr       */
+/*   Updated: 2022/12/31 12:39:52 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,13 +26,10 @@
 
 typedef enum e_cmd
 {
-	DOUBLE_PIPE,
-	DOUBLE_AMPERSAND,
 	SINGLE_QUOT,
 	DOUBLE_QUOT,
 	REDIRECT,
-	SIMPLE_CMD,
-	BRACKET
+	SIMPLE_CMD
 }	t_cmd;
 
 typedef struct s_token
