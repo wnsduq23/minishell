@@ -1,26 +1,39 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   tokenize.c                                         :+:      :+:    :+:   */
+/*   tokenize_utils.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: hwichoi <hwichoi@student.42seoul.k>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/12/29 17:19:52 by hwichoi           #+#    #+#             */
-/*   Updated: 2022/12/31 21:00:02 by hwichoi          ###   ########.fr       */
+/*   Created: 2022/12/31 18:16:54 by hwichoi           #+#    #+#             */
+/*   Updated: 2022/12/31 18:18:52 by hwichoi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parse.h"
 
-t_token *quotes_div(t_token *token)
+void	clear_token(t_token **token)
 {
-	
+	t_token	*buf;
 
-t_token	*tokenize(char *line)
+	while (*token != 0)
+	{
+		buf = *token;
+		*token = (*token)->next;
+		free((*token)->content);
+		free(*token);
+	}
+}
+
+t_token	*new_token(char *content)
 {
-	t_token	*tokens;
-	int		len;
+	t_token	*ret;
 
-	len = 0;
-	tokens = new_token(line);
-	tokens = quotes_div(token);
+	ret = (t_token *)malloc(sizeof(t_token));
+	if (ret == 0)
+		return (0);
+	ret->content = content;
+	ret->prev = 0;
+	ret->next = 0;
+	return (ret);
+}
