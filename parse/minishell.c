@@ -6,12 +6,11 @@
 /*   By: hwichoi <hwichoi@student.42seoul.k>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 15:17:16 by hwichoi           #+#    #+#             */
-/*   Updated: 2022/12/29 19:25:46 by hwichoi          ###   ########.fr       */
+/*   Updated: 2023/01/03 20:48:36 by hwichoi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parse.h"
-#include <stdlib.h>
 
 int	start_line(char *line, t_shell *shell)
 {
@@ -19,6 +18,8 @@ int	start_line(char *line, t_shell *shell)
 	t_tree	*tree;
 
 	tokens = tokenize(line);
+	show_tokens(tokens);
+	return (1);
 }
 
 void	start_loop(t_shell *shell)

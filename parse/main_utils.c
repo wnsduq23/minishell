@@ -6,7 +6,7 @@
 /*   By: hwichoi <hwichoi@student.42seoul.k>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/29 15:26:40 by hwichoi           #+#    #+#             */
-/*   Updated: 2022/12/29 16:33:15 by hwichoi          ###   ########.fr       */
+/*   Updated: 2023/01/03 19:49:35 by hwichoi          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,4 +51,10 @@ int	envp_copy(char **envp, t_shell *shell)
 	}
 	shell->env[i] = 0;
 	return (1);
+}
+
+void	print_err(char c)
+{
+	printf("error from %c\n", c);
+	exit(-1);
 }
