@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/31 16:06:27 by junykim           #+#    #+#             */
-/*   Updated: 2022/12/31 16:09:14 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/03 21:58:33 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,11 +99,11 @@ int	open_redirection(int *pipe_fd, t_list *redir_list, \
 	while (cur != NULL)
 	{
 		tok = cur->content;
-		if (tok->type == E_TYPE_REDIR_LESS)
+		if (tok->type == E_TYPE_REDIR_INPUT)
 			open_file_input(cur, pipe_fd, &status);
 		else if (tok->type == E_TYPE_REDIR_HEREDOC)
 			open_file_heredoc(cur, pipe_fd, &status, config);
-		else if (tok->type == E_TYPE_REDIR_GREATER)
+		else if (tok->type == E_TYPE_REDIR_OUTPUT)
 			open_file_output(cur, pipe_fd, &status);
 		else if (tok->type == E_TYPE_REDIR_APPEND)
 			open_file_append(cur, pipe_fd, &status);

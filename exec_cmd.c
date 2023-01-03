@@ -6,12 +6,11 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 15:15:48 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/03 18:42:24 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/03 22:21:30 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-#include <sys/wait.h>
 
 # define SUCCESS 0
 
@@ -33,7 +32,7 @@
 	return (NULL);
 }
 
-int	exec_builtin(char **cmd_argv, char ***envp, t_shell *shell)
+int	exec_builtin(char **cmd_argv, char **envp, t_shell *shell)
 {
 	size_t	len;
 	int		status;
@@ -60,19 +59,37 @@ int	exec_builtin(char **cmd_argv, char ***envp, t_shell *shell)
 
 //NOTE: : it isn't be forked ? 
 //NOTE: : for builtin command
-void	exec_exceptions(t_tree *node, t_token *tok, int *status, t_shell *shell)
+int	exec_builtin_cmd(t_tree *node, char **cmd_argv, t_shell *shell)
 {
-	int	pipe_fd[2];
+	int	fd[2];
 	int	status;
 
-	pipe_fd[READ] = shell->stdin;
-	pipe_fd[WRITE] = shell->stdout;
+	fd[READ] = shell->stdin;
+	fd[WRITE] = shell->stdout;
+	status = open_redirection(fd, node->redirection, shell);
+	if (status != SUCCESS)
+		return (status);
+	if (fd[READ] != shell->stdin)
+	{
+		dup2(fd[READ], STDIN_FILENO);
+		close(fd[READ]);
+	}
+	if (fd[WRITE] != shell->stdout)
+	{
+		dup2(fd[WRITE], STDOUT_FILENO);
+		close(fd[WRITE]);
+	}
+	status = exec_builtin(cmd_argv, shell->env, shell);
+	if (fd[READ] != shell->stdin)
+		dup2(shell->stdin, STDIN_FILENO);
+	if (fd[WRITE] != shell->stdout)
+		dup2(shell->stdout, STDOUT_FILENO);
+	return (status);
 }
-
 //NOTE: : for PATH command
-//TODO: : 잘못된 cmd인 경우 오류 출력만 하고 계속 수행한다.  
+//TODO: : 잘못된 cmd인 경우 오류 출력만 하고 계속 수행한다. 
 //WARN: : 병렬적으로 수행되는지 확인 
-void	exec_general(t_tree *node, char *cmd, t_shell *shell)
+void	exec_path_cmd(t_tree *node, char *cmd, t_shell *shell)
 {
 	int		pipe_fd[2];
 	pid_t	pid;
@@ -90,5 +107,5 @@ void	exec_general(t_tree *node, char *cmd, t_shell *shell)
 	}
 	if (pid == 0) 
 		child_process(pipe_fd, node, cmd, shell);
-	wait_every_pid();
+	wait_every_pid(shell);
 }

@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:41:12 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/03 18:43:45 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/03 22:18:42 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,21 +91,35 @@ void	inorder_recur(t_tree *node, int *status, t_callback_func callback, \
 int		execute(t_tree *tree, t_shell *shell);
 
 // ================================
-//			cmd1.c
+//			exec_cmd.c
 // ================================
 char	*get_cmd(char **paths, char *cmd);
-void	exec_cmd(t_tree *node, char *cmd, t_shell *shell);
-void	exec_operator(t_tree *node, t_token *tok, int *status, t_shell *shell);
+int		exec_builtin(char **cmd_argv, char ***envp, t_shell *shell);
+void	exec_builtin_cmd(t_tree *node, t_token *tok, int *status, t_shell *shell);
+void	exec_path_cmd(t_tree *node, char *cmd, t_shell *shell);
 
 // ================================
 //			redirection.c
 // ================================
-int	open_file_input(t_list *cur, int *pipe_fd, int *status);
-int	open_file_heredoc(t_list *cur, int *pipe_fd, int *status, \
-		t_shell *shell);
-int	open_file_output(t_list *cur, int *pipe_fd, int *status);
-int	open_file_append(t_list *cur, int *pipe_fd, int *status);
-int	open_redirection(int *pipe_fd, t_list *redir_list, \
+int		open_file_input(t_list *cur, int *pipe_fd, int *status);
+int		open_file_heredoc(t_list *cur, int *pipe_fd, int *status, \
+			t_shell *shell);
+int		open_file_output(t_list *cur, int *pipe_fd, int *status);
+int		open_file_append(t_list *cur, int *pipe_fd, int *status);
+int		open_redirection(int *pipe_fd, t_list *redir_list, \
 			t_shell *shell);
 
+// ================================
+//			cmd_builtin1.c
+// ================================
+
+// ================================
+//			cmd_builtin2.c
+// ================================
+
+
+// ================================
+//				util.c
+// ================================
+void	wait_every_pid(t_shell *shell);
 #endif
