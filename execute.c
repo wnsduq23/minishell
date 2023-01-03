@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:19:35 by junykim           #+#    #+#             */
-/*   Updated: 2022/12/29 20:50:43 by junykim          ###   ########.fr       */
+/*   Updated: 2022/12/31 14:55:47 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,8 +18,8 @@ void	delete_node(t_tree *node, int *status, t_shell *shell)
 	(void)shell;
 	if (node != NULL)
 	{
-		if ((node)->redirection != NULL)
-			ft_lstclear(&node->redirection, delete_token);
+		if ((node)->redir != NULL)
+			ft_lstclear(&node->redir, delete_token);
 		if (node->token != NULL)
 			ft_lstclear(&node->token, delete_token);
 		free(node);
@@ -58,7 +58,7 @@ void	execute_node(t_tree *node, int *status, t_shell *shell)
 void	inorder_recur(t_tree *node, int *status, t_callback_func callback, \
 			t_shell *shell)
 {
-	if (node == NULL)
+	if (node == NULL) // 리스트 포인터를 NULL로 초기화 해놔야함 
 		return ;
 	if (callback != delete_node)
 	{

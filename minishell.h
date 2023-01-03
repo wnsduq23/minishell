@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:41:12 by junykim           #+#    #+#             */
-/*   Updated: 2022/12/31 12:39:52 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/03 18:43:45 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,12 @@
 //perror
 # include <stdio.h>
 
+// open, close .. 
+#include <fcntl.h>
+
+//wait
+#include <sys/wait.h>
+
 # include "libft/libft.h"
 
 typedef enum e_cmd
@@ -31,6 +37,9 @@ typedef enum e_cmd
 	REDIRECT,
 	SIMPLE_CMD
 }	t_cmd;
+
+# define READ	(0)
+# define WRITE	(1)
 
 typedef struct s_token
 {
@@ -56,6 +65,8 @@ typedef struct s_shell
 	char	**env;
 	int		last_cmd_wstatus;
 	char	**paths;
+	int		stdout;
+	int		stdin;
 }	t_shell;
 
 /*
@@ -85,4 +96,16 @@ int		execute(t_tree *tree, t_shell *shell);
 char	*get_cmd(char **paths, char *cmd);
 void	exec_cmd(t_tree *node, char *cmd, t_shell *shell);
 void	exec_operator(t_tree *node, t_token *tok, int *status, t_shell *shell);
+
+// ================================
+//			redirection.c
+// ================================
+int	open_file_input(t_list *cur, int *pipe_fd, int *status);
+int	open_file_heredoc(t_list *cur, int *pipe_fd, int *status, \
+		t_shell *shell);
+int	open_file_output(t_list *cur, int *pipe_fd, int *status);
+int	open_file_append(t_list *cur, int *pipe_fd, int *status);
+int	open_redirection(int *pipe_fd, t_list *redir_list, \
+			t_shell *shell);
+
 #endif
