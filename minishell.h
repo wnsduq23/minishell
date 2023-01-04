@@ -6,13 +6,14 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:41:12 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/03 22:18:42 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/04 19:01:22 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
+int	g_rvalue;
 // free, malloc
 # include <stdlib.h>
 
@@ -27,6 +28,9 @@
 
 //wait
 #include <sys/wait.h>
+
+//stat
+#include <sys/stat.h>
 
 # include "libft/libft.h"
 
@@ -45,6 +49,9 @@ typedef struct s_token
 {
 	t_cmd			type;
 	char			*token;
+	char			*path;
+	int				stdin;
+	int				stdout;
 	struct s_token	*prev;
 	struct s_token	*next;
 }	t_token;
@@ -64,9 +71,6 @@ typedef struct s_shell
 {
 	char	**env;
 	int		last_cmd_wstatus;
-	char	**paths;
-	int		stdout;
-	int		stdin;
 }	t_shell;
 
 /*
@@ -74,29 +78,32 @@ typedef struct s_shell
  * cmd	: "ls -al"
  * paths : "/bin/ls"
  */
-typedef struct s_cmds
-{
-	char	**argv;
-	char	*cmd;
-}			t_cmds;
 
 // ================================
 //			execute.c
 // ================================
-typedef void(*t_callback_func)(t_tree *, int *, t_shell *);
-void	delete_node(t_tree *node, int *status, t_shell *shell);
-void	execute_node(t_tree *node, int *status, t_shell *shell);
-void	inorder_recur(t_tree *node, int *status, t_callback_func callback, \
+typedef void(*t_callback_func)(t_tree *, t_shell *);
+void	delete_node(t_tree *node, t_shell *shell);
+void	execute_node(t_tree *node, t_shell *shell);
+int		is_builtin(t_token *tok);
+void	inorder_recur(t_tree *node, t_callback_func callback, \
 			t_shell *shell);
 int		execute(t_tree *tree, t_shell *shell);
 
 // ================================
 //			exec_cmd.c
 // ================================
-char	*get_cmd(char **paths, char *cmd);
-int		exec_builtin(char **cmd_argv, char ***envp, t_shell *shell);
-void	exec_builtin_cmd(t_tree *node, t_token *tok, int *status, t_shell *shell);
-void	exec_path_cmd(t_tree *node, char *cmd, t_shell *shell);
+void	exec_builtin(t_tree *node, t_token *tok);
+void	exec_external(t_tree *node, t_token *tok, t_shell *shell);
+int		child_process(int *pipe_fd, t_tree *node, t_token *tok, t_shell *shell);
+void	do_execve(t_token *tok, t_tree *node, t_shell *shell);
+void	check_path_permission(t_token *tok, t_tree *node, t_shell *shell);
+
+// ================================
+//			exec_cmd_util.c
+// ================================
+char	*get_cmd(char **envp, char *cmd);
+void	init_dup(t_tree *node, t_token *tok, int *pipe_fd);
 
 // ================================
 //			redirection.c
@@ -117,6 +124,16 @@ int		open_redirection(int *pipe_fd, t_list *redir_list, \
 //			cmd_builtin2.c
 // ================================
 
+// ================================
+//			cmd_builtin2.c
+// ================================
+void	delete_token();
+
+// ================================
+//			error.c
+// ================================
+void	return_error_2(char *arg, char *msg, int nb);
+void	ft_perror(char  *string);
 
 // ================================
 //				util.c

@@ -1,28 +1,55 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cmd2.c                                             :+:      :+:    :+:   */
+/*   exec_cmd_util.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/29 20:44:14 by junykim           #+#    #+#             */
-/*   Updated: 2022/12/31 17:20:46 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/04 19:00:56 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "libft/libft.h"
 #include "minishell.h"
 
-/*
- * cmd를 수행할 자식 process를 만든다.
- */
-void	child_process(int *pipe_fd, t_tree *node, char *cmd, t_shell *shell)
+void init_dup(t_tree *node, t_token *tok, int *pipe_fd)
 {
+	int	tmp_fd;
+
 	if (node->last_pipe_cmd)
-		dup2(shell->stdout, pipe_fd[WRITE]);
-	else
+		dup2(tok->stdout, pipe_fd[WRITE]);
+	tmp_fd = pipe_fd[READ];
+	/** status = open_redirection(pipe_fd, node->redirection, shell); */
+	/** if (status != SUCCESS) */
+	/**     exit(status); */
+	if (tmp_fd != pipe_fd[READ])
+		dup2(pipe_fd[READ], STDIN_FILENO);
+	dup2(pipe_fd[WRITE], STDOUT_FILENO);
+	close(pipe_fd[WRITE]);
+	close(pipe_fd[READ]);
+}
+
+char	*get_cmd(char **envp, char *cmd)
+{
+	char	*tmp;
+	char	*command;
+	char	**paths;
+
+	while (ft_strncmp("PATH", *envp, 4))
+		envp++;
+	paths = ft_split((*envp + 5), ':');
+	if (!paths)
+		return ("nopath");
+	while (*paths)
 	{
-		pipe_fd[0]
+		tmp = ft_strjoin(*paths, "/");
+		command = ft_strjoin(tmp, cmd);
+		free(tmp);
+		if (access(command, 0) == 0)
+			return (command);
+		free(command);
+		paths++;
 	}
-	execve(cmd, node->token, shell->env);
-	exit(0);
+	return (NULL);
 }

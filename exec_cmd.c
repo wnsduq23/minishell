@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 15:15:48 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/03 22:21:30 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/04 19:10:38 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,82 +14,94 @@
 
 # define SUCCESS 0
 
- char	*get_cmd(char **paths, char *cmd)
-{
-	char	*tmp;
-	char	*command;
-
-	while (*paths)
-	{
-		tmp = ft_strjoin(*paths, "/");
-		command = ft_strjoin(tmp, cmd);
-		free(tmp);
-		if (access(command, 0) == 0)
-			return (command);
-		free(command);
-		paths++;
-	}
-	return (NULL);
-}
-
-int	exec_builtin(char **cmd_argv, char **envp, t_shell *shell)
-{
-	size_t	len;
-	int		status;
-
-	len = ft_strlen(cmd_argv[0]);
-	if (ft_strncmp("cd", cmd_argv[0], len + 1) == 0)
-		status = exec_cd(cmd_argv, envp);
-	else if (ft_strncmp("exit", cmd_argv[0], len + 1) == 0)
-		status = exec_exit(cmd_argv, *envp, shell);
-	else if (ft_strncmp("export", cmd_argv[0], len + 1) == 0)
-		status = exec_export(cmd_argv, envp);
-	else if (ft_strncmp("env", cmd_argv[0], len + 1) == 0)
-		status = exec_env(cmd_argv, *envp);
-	else if (ft_strncmp("echo", cmd_argv[0], len + 1) == 0)
-		status = exec_echo(cmd_argv, *envp);
-	else if (ft_strncmp("pwd", cmd_argv[0], len + 1) == 0)
-		status = exec_pwd(cmd_argv, *envp);
-	else if (ft_strncmp("unset", cmd_argv[0], len + 1) == 0)
-		status = exec_unset(cmd_argv, envp);
-	else
-		status = ERROR;
-	return (status);
-}
 
 //NOTE: : it isn't be forked ? 
 //NOTE: : for builtin command
-int	exec_builtin_cmd(t_tree *node, char **cmd_argv, t_shell *shell)
+/*void	exec_builtin(t_tree *node, t_token *tok)
 {
-	int	fd[2];
-	int	status;
+	if (ft_strncmp(tok->token, "cd", ft_strlen("cd")) == 0)
+		ft_cd(node, tok->token, tok);
+	if (ft_strncmp(tok->token, "env", ft_strlen("env")) == 0)
+		env(node);
+	if (ft_strncmp(tok->token, "unset", ft_strlen("unset")) == 0)
+		ft_unset(node, tok->token);
+	if (ft_strncmp(tok->token, "pwd", ft_strlen("pwd")) == 0)
+		ft_pwd(node);
+	if (ft_strncmp(tok->token, "export", ft_strlen("export")) == 0)
+		ft_export(node, tok);
+	if (ft_strncmp(tok->token, "exit", ft_strlen("exit")) == 0)
+		ft_exit(tok);
+	if (ft_strncmp(tok->token, "echo", ft_strlen("echo")) == 0)
+		ft_echo(tok->token);
+} */
 
-	fd[READ] = shell->stdin;
-	fd[WRITE] = shell->stdout;
-	status = open_redirection(fd, node->redirection, shell);
-	if (status != SUCCESS)
-		return (status);
-	if (fd[READ] != shell->stdin)
+void	do_execve(t_token *tok, t_tree *node, t_shell *shell)
+{
+	struct stat	s;
+
+	stat(tok->token, &s);
+	if (tok->token[0] == '/')
 	{
-		dup2(fd[READ], STDIN_FILENO);
-		close(fd[READ]);
+		if (!S_ISDIR(s.st_mode) && !S_ISREG(s.st_mode))
+			return_error_2(tok->token,
+				": No such file or directory", 127);
+		if (access(tok->token, X_OK) == -1
+			&& access(tok->token, F_OK) == 0)
+			return_error_2(tok->token, ": Permission denied", 126);
+		if (execve(tok->token, node->token, shell->env) < 0)
+			return_error_2(tok->token,
+				": command not found", 127);
 	}
-	if (fd[WRITE] != shell->stdout)
-	{
-		dup2(fd[WRITE], STDOUT_FILENO);
-		close(fd[WRITE]);
-	}
-	status = exec_builtin(cmd_argv, shell->env, shell);
-	if (fd[READ] != shell->stdin)
-		dup2(shell->stdin, STDIN_FILENO);
-	if (fd[WRITE] != shell->stdout)
-		dup2(shell->stdout, STDOUT_FILENO);
-	return (status);
+	if (execve(tok->token, node->token, shell->env) == -1
+		&& ft_strlen(tok->token))
+		return_error_2(tok->token,
+			": command not found", 127);
+	else
+		exit (0);
 }
+
+void	check_path_permission(t_token *tok, t_tree *node, t_shell *shell)
+{
+	struct stat	s;
+
+	stat(tok->token, &s);
+	if (S_ISDIR(s.st_mode))
+		return_error_2(tok->token, ": is a directory", 126);
+	if (access(tok->token, X_OK) == -1
+		&& access(tok->token, F_OK) == 0)
+		return_error_2(tok->token, ": Permission denied", 126);
+	if (execve(tok->token, node->token, shell->env) == -1)
+		return_error_2(tok->token,
+			": No such file or directory", 127);
+}
+
+int	child_process(int *pipe_fd, t_tree *node, t_token *tok, t_shell *shell)
+{
+
+	/** signal(SIGINT, ft_ctrl_c_fork); */
+	/** signal(SIGQUIT, ft_ctrl_f_bslash); */
+	/** signal(SIGINT, sig_exit); */
+	init_dup(node, tok, pipe_fd);
+	tok->path = get_cmd(shell->env, tok->token);
+	/** if (is_builtin(tok) != 0) */
+	/** { */
+	/**     exec_builtin(node, tok); */
+	/**     exit(0); */
+	/** } */
+	if (ft_strncmp(tok->path, "nopath", 6) == 0)
+		return_error_2(tok->token,
+				": No such file or directory", 127);
+	else if (tok->token[0] == '.' && tok->token[1] == '/')
+		check_path_permission(tok, node, shell);
+	else
+		do_execve(tok, node, shell);
+	return (0);
+}
+
 //NOTE: : for PATH command
 //TODO: : 잘못된 cmd인 경우 오류 출력만 하고 계속 수행한다. 
 //WARN: : 병렬적으로 수행되는지 확인 
-void	exec_path_cmd(t_tree *node, char *cmd, t_shell *shell)
+void	exec_external(t_tree *node, t_token *tok, t_shell *shell)
 {
 	int		pipe_fd[2];
 	pid_t	pid;
@@ -106,6 +118,6 @@ void	exec_path_cmd(t_tree *node, char *cmd, t_shell *shell)
 		return ;
 	}
 	if (pid == 0) 
-		child_process(pipe_fd, node, cmd, shell);
-	wait_every_pid(shell);
+		child_process(pipe_fd, node, tok, shell);
+	/** wait_every_pid(shell); */
 }

@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:19:35 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/03 22:11:26 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/04 19:10:51 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,38 +14,44 @@
 # define true (1)
 # define false (0)
 
-void	delete_node(t_tree *node, int *status, t_shell *shell)
+void	delete_node(t_tree *node, t_shell *shell)
 {
-	(void)status;
 	(void)shell;
 	if (node != NULL)
 	{
 		if ((node)->redir != NULL)
-			ft_lstclear(&node->redir, delete_token);
+			/** ft_lstclear(&node->redir, delete_token); */
 		if (node->token != NULL)
-			ft_lstclear(&node->token, delete_token);
+			/** ft_lstclear(&node->token, delete_token); */
 		free(node);
 		node = NULL;
 	}
 }
-	if (tok->token != NULL && tok_type != SIMPLE_CMD)
-		exec_operator(node, tok, status, shell);
 
-static int	is_builtin_cmd(char *cmd)
+int	is_builtin(t_token *tok)
 {
-	size_t	len;
-
-	len = ft_strlen(cmd);
-	if (ft_strncmp("cd", cmd, len + 1) != 0 \
-			&& ft_strncmp("exit", cmd, len + 1) != 0 \
-			&& ft_strncmp("export", cmd, len + 1) != 0 \
-			&& ft_strncmp("env", cmd, len + 1) != 0 \
-			&& ft_strncmp("echo", cmd, len + 1) != 0 \
-			&& ft_strncmp("pwd", cmd, len + 1) != 0 \
-			&& ft_strncmp("unset", cmd, len + 1) != 0)
-		return (false);
+	if (tok->token == NULL)
+		return (0);
+	if ((ft_strncmp(tok->token, "env",
+				ft_strlen(tok->token) + 1) == 0)
+		|| (ft_strncmp(tok->token, "pwd",
+				ft_strlen(tok->token) + 1) == 0)
+		|| (ft_strncmp(tok->token, "echo",
+				ft_strlen(tok->token) + 1) == 0))
+	{
+		return (1);
+	}
+	else if (ft_strncmp(tok->token, "cd",
+			ft_strlen(tok->token) + 1) == 0
+		|| (ft_strncmp(tok->token, "exit",
+				ft_strlen(tok->token) + 1) == 0)
+		|| (ft_strncmp(tok->token, "export",
+				ft_strlen(tok->token) + 1) == 0)
+		|| (ft_strncmp(tok->token, "unset",
+				ft_strlen(tok->token) + 1) == 0))
+		return (2);
 	else
-		return (true);
+		return (0);
 }
 
 /* 
@@ -53,53 +59,44 @@ static int	is_builtin_cmd(char *cmd)
  * tok -> "ls"
  * cmd -> "/bin/ls/ls"
  */
-void	execute_node(t_tree *node, int *status, t_shell *shell)
+void	execute_node(t_tree *node, t_shell *shell)
 {
 	t_token	*tok;
-	char	*cmd;
 
+	/** if (check_redir(node) == -1) */
+	/**     return ; */
 	tok = NULL;
 	if (node->token != NULL)
 		tok->token = node->token[0];
-	cmd = get_cmd(shell->paths, tok->token);
-	if (cmd == NULL)
-	{
-		ft_perror(cmd, ": command not found");
-		give_signal();
-		status = 127;
-		return ;
-	}
-	if (is_builtin_cmd(cmd) == true)
-		exec_builtin_cmd(node, tok, status, shell);
-	exec_path_cmd(node, cmd, shell);
+	/** if (is_builtin(tok) == 2) */
+	/**     exec_builtin(node, tok); */
+	exec_external(node, tok, shell);
 }
 
-void	inorder_recur(t_tree *node, int *status, t_callback_func callback, \
+void	inorder_recur(t_tree *node, t_callback_func callback, \
 			t_shell *shell)
 {
 	if (node == NULL) // 리스트 포인터를 NULL로 초기화 해놔야함 
 		return ;
 	if (callback != delete_node)
 	{
-		inorder_recur(node->left, status, callback, shell);
-		callback(node, status, shell);
-		inorder_recur(node->right, status, callback, shell);
+		inorder_recur(node->left, callback, shell);
+		callback(node, shell);
+		inorder_recur(node->right, callback, shell);
 	}
 	else if (callback == delete_node)
 	{
-		inorder_recur(node->left, status, callback, shell);
-		inorder_recur(node->right, status, callback, shell);
-		callback(node, status, shell);
+		inorder_recur(node->left, callback, shell);
+		inorder_recur(node->right, callback, shell);
+		callback(node, shell);
 	}
 }
 
 int	execute(t_tree *tree, t_shell *shell)
 {
-	int	status;
-
-	inorder_recur(tree, &status, execute_node, shell);
-	wait_every_pid(shell);
-	inorder_recur(tree, &status, delete_node, shell);
+	inorder_recur(tree, execute_node, shell);
+	/** wait_every_pid(shell); */
+	inorder_recur(tree, delete_node, shell);
 	//g_is_sig_interrupt = false;
 	return (WEXITSTATUS(shell->last_cmd_wstatus));
 }

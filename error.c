@@ -1,30 +1,30 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   util.c                                             :+:      :+:    :+:   */
+/*   error.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2023/01/03 22:12:00 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/04 18:34:39 by junykim          ###   ########.fr       */
+/*   Created: 2023/01/04 18:14:36 by junykim           #+#    #+#             */
+/*   Updated: 2023/01/04 18:19:20 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void	wait_every_pid(t_shell *shell)
+void	ft_perror(char  *string)
 {
-	t_list	*cur;
-	int		w_status;
-
-	cur = shell->pid_list;
-	while (cur != NULL)
-	{
-		if (waitpid(-1, &w_status, 0) == shell->last_cmd_pid)
-			shell->last_cmd_wstatus = w_status;
-		if (WIFSIGNALED(shell->last_cmd_wstatus))
-			shell->last_cmd_wstatus += 128;
-		cur = cur->next;
-	}
-	ft_lstclear(&shell->pid_list, free);
+	write(1, string, ft_strlen(string));
+	exit(1);
 }
+
+void	return_error_2(char *arg, char *msg, int nb)
+{
+	ft_putstr_fd("minishell: ", 2);
+	ft_putstr_fd(arg, 2);
+	ft_putendl_fd(msg, 2);
+	g_rvalue = nb % 256;
+	exit(nb % 256);
+}
+
+
