@@ -6,13 +6,11 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:19:35 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/04 19:10:51 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/08 18:47:45 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
-# define true (1)
-# define false (0)
 
 void	delete_node(t_tree *node, t_shell *shell)
 {
@@ -30,25 +28,25 @@ void	delete_node(t_tree *node, t_shell *shell)
 
 int	is_builtin(t_token *tok)
 {
-	if (tok->token == NULL)
+	if (tok->content == NULL)
 		return (0);
-	if ((ft_strncmp(tok->token, "env",
-				ft_strlen(tok->token) + 1) == 0)
-		|| (ft_strncmp(tok->token, "pwd",
-				ft_strlen(tok->token) + 1) == 0)
-		|| (ft_strncmp(tok->token, "echo",
-				ft_strlen(tok->token) + 1) == 0))
+	if ((ft_strncmp(tok->content, "env",
+				ft_strlen(tok->content) + 1) == 0)
+		|| (ft_strncmp(tok->content, "pwd",
+				ft_strlen(tok->content) + 1) == 0)
+		|| (ft_strncmp(tok->content, "echo",
+				ft_strlen(tok->content) + 1) == 0))
 	{
 		return (1);
 	}
-	else if (ft_strncmp(tok->token, "cd",
-			ft_strlen(tok->token) + 1) == 0
-		|| (ft_strncmp(tok->token, "exit",
-				ft_strlen(tok->token) + 1) == 0)
-		|| (ft_strncmp(tok->token, "export",
-				ft_strlen(tok->token) + 1) == 0)
-		|| (ft_strncmp(tok->token, "unset",
-				ft_strlen(tok->token) + 1) == 0))
+	else if (ft_strncmp(tok->content, "cd",
+			ft_strlen(tok->content) + 1) == 0
+		|| (ft_strncmp(tok->content, "exit",
+				ft_strlen(tok->content) + 1) == 0)
+		|| (ft_strncmp(tok->content, "export",
+				ft_strlen(tok->content) + 1) == 0)
+		|| (ft_strncmp(tok->content, "unset",
+				ft_strlen(tok->content) + 1) == 0))
 		return (2);
 	else
 		return (0);
@@ -66,8 +64,12 @@ void	execute_node(t_tree *node, t_shell *shell)
 	/** if (check_redir(node) == -1) */
 	/**     return ; */
 	tok = NULL;
+	tok = malloc(sizeof(t_token));
+	tok->stdout = 4;
+	tok->stdin = 3;
+	tok->content = malloc(sizeof(char) * ft_strlen(node->token[0]) + 1);
 	if (node->token != NULL)
-		tok->token = node->token[0];
+		tok->content = node->token[0];
 	/** if (is_builtin(tok) == 2) */
 	/**     exec_builtin(node, tok); */
 	exec_external(node, tok, shell);
@@ -95,8 +97,7 @@ void	inorder_recur(t_tree *node, t_callback_func callback, \
 int	execute(t_tree *tree, t_shell *shell)
 {
 	inorder_recur(tree, execute_node, shell);
-	/** wait_every_pid(shell); */
+	wait_every_pid(shell);
 	inorder_recur(tree, delete_node, shell);
-	//g_is_sig_interrupt = false;
 	return (WEXITSTATUS(shell->last_cmd_wstatus));
 }

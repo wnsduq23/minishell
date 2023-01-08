@@ -6,14 +6,13 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:41:12 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/04 19:01:22 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/08 21:23:41 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
-int	g_rvalue;
 // free, malloc
 # include <stdlib.h>
 
@@ -24,15 +23,17 @@ int	g_rvalue;
 # include <stdio.h>
 
 // open, close .. 
-#include <fcntl.h>
+# include <fcntl.h>
 
 //wait
-#include <sys/wait.h>
+# include <sys/wait.h>
 
 //stat
-#include <sys/stat.h>
+# include <sys/stat.h>
 
 # include "libft/libft.h"
+
+int	g_rvalue;
 
 typedef enum e_cmd
 {
@@ -48,7 +49,7 @@ typedef enum e_cmd
 typedef struct s_token
 {
 	t_cmd			type;
-	char			*token;
+	char			*content;
 	char			*path;
 	int				stdin;
 	int				stdout;
@@ -71,6 +72,8 @@ typedef struct s_shell
 {
 	char	**env;
 	int		last_cmd_wstatus;
+	int		last_cmd_pid;
+	t_list	*pid_list;
 }	t_shell;
 
 /*
@@ -82,7 +85,7 @@ typedef struct s_shell
 // ================================
 //			execute.c
 // ================================
-typedef void(*t_callback_func)(t_tree *, t_shell *);
+typedef	void(*t_callback_func)(t_tree *, t_shell *);
 void	delete_node(t_tree *node, t_shell *shell);
 void	execute_node(t_tree *node, t_shell *shell);
 int		is_builtin(t_token *tok);
@@ -117,26 +120,30 @@ int		open_redirection(int *pipe_fd, t_list *redir_list, \
 			t_shell *shell);
 
 // ================================
-//			cmd_builtin1.c
-// ================================
-
-// ================================
-//			cmd_builtin2.c
-// ================================
-
-// ================================
-//			cmd_builtin2.c
+//				.c
 // ================================
 void	delete_token();
 
 // ================================
-//			error.c
+//				error.c
 // ================================
 void	return_error_2(char *arg, char *msg, int nb);
 void	ft_perror(char  *string);
+int		return_error_export(char *cmd, char *arg, char *msg, int nb);
 
 // ================================
 //				util.c
 // ================================
 void	wait_every_pid(t_shell *shell);
+void	*new_pid(pid_t pid);
+int		find_in_env(t_shell *shell, char *var_env);
+int		ft_isspace(int n);
+
+// ================================
+//			export_util.c
+// ================================
+void	ft_free_split(char **split);
+char	**ft_addline(char **env, char *token);
+void	display_export(t_shell *shell);
+char	**sort_env(char **dest, t_shell *shell);
 #endif

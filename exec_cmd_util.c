@@ -6,14 +6,14 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/29 20:44:14 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/04 19:00:56 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/08 18:44:16 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "libft/libft.h"
 #include "minishell.h"
 
-void init_dup(t_tree *node, t_token *tok, int *pipe_fd)
+void	init_dup(t_tree *node, t_token *tok, int *pipe_fd)
 {
 	int	tmp_fd;
 

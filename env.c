@@ -1,23 +1,29 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   cmd_builtin2.c                                     :+:      :+:    :+:   */
+/*   ft_env.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/12/31 18:16:48 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/03 22:27:45 by junykim          ###   ########.fr       */
+/*   Created: 2023/01/06 16:34:03 by junykim           #+#    #+#             */
+/*   Updated: 2023/01/08 17:26:40 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	exec_pwd(char **cmd_argv, char **envp)
+void	env(t_shell *shell)
 {
+	int		i;
+	char	**dest;
 
-}
-
-int	exec_unset(char **cmd_argv, char **envp)
-{
-
+	dest = shell->env;
+	i = 0;
+	while (dest[i])
+	{
+		if (ft_strchr(dest[i], '='))
+			ft_putendl_fd(dest[i], 1);
+		i++;
+	}
+	exit(0);
 }

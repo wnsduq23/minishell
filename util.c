@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/03 22:12:00 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/04 18:34:39 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/08 20:16:01 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,4 +27,37 @@ void	wait_every_pid(t_shell *shell)
 		cur = cur->next;
 	}
 	ft_lstclear(&shell->pid_list, free);
+}
+
+void	*new_pid(pid_t pid)
+{
+	pid_t	*tmp;
+
+	tmp = ft_calloc(1, sizeof(*tmp));
+	*tmp = pid;
+	return (tmp);
+}
+
+int	find_in_env(t_shell *shell, char *var_env)
+{
+	int	j;
+
+	j = 0;
+	while (shell->env[j])
+	{
+		if ((!ft_strncmp(shell->env[j], var_env, ft_strlen(var_env)) \
+			&& shell->env[j][ft_strlen(var_env)] == '=') \
+		|| (!ft_strncmp(shell->env[j], var_env, ft_strlen(var_env))
+			&& shell->env[j][ft_strlen(var_env)] == '\0'))
+			break ;
+		j++;
+	}
+	return (j);
+}
+
+int	ft_isspace(int n)
+{
+	if (n == ' ')
+		return (1);
+	return (0);
 }
