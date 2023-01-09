@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/08 20:20:03 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/08 21:26:16 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/08 21:46:13 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,7 @@ void	display_export(t_shell *shell)
 	{
 		if (ft_strchr(dest[i], '='))
 		{
-			// 이거 gnl 에 그거 말하는 듯 ? 
+			// 이거 gnl 에서 strjoin 했던거 지우는 거 말하는 듯 ?
 			split = ft_split(dest[i], '=');
 			temp = ft_strjoin("=\"", split[1]);
 			temp = ft_strjoin_free_s1(temp, "\"");

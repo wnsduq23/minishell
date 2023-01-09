@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/01/03 22:12:00 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/08 20:16:01 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/08 21:46:07 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,4 +60,14 @@ int	ft_isspace(int n)
 	if (n == ' ')
 		return (1);
 	return (0);
+}
+
+int	ft_destlen(char **s)
+{
+	int	i;
+
+	i = 0;
+	while (s[i])
+		i++;
+	return (i);
 }

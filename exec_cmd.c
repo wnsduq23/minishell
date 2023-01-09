@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 15:15:48 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/08 20:17:11 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/08 22:22:48 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,11 +18,11 @@
 /*void	exec_builtin(t_tree *node, t_token *tok, t_shell *shell)
 {
 	if (ft_strncmp(tok->content, "cd", ft_strlen("cd")) == 0)
-		ft_cd(node, tok->content, tok);
+		ft_cd(node, node->token, tok, shell);
 	if (ft_strncmp(tok->content, "env", ft_strlen("env")) == 0)
 		env(node);
 	if (ft_strncmp(tok->content, "unset", ft_strlen("unset")) == 0)
-		ft_unset(node, tok->content);
+		ft_unset(node, node->token);
 	if (ft_strncmp(tok->content, "pwd", ft_strlen("pwd")) == 0)
 		ft_pwd();
 	if (ft_strncmp(tok->content, "export", ft_strlen("export")) == 0)
@@ -86,7 +86,7 @@ int	child_process(int *pipe_fd, t_tree *node, t_token *tok, t_shell *shell)
 	/**     exit(0); */
 	/** } */
 	if (ft_strncmp(tok->path, "nopath", 6) == 0)
-		return_error_2(tok->content,
+		return_error_2(tok->content, \
 				": No such file or directory", 127);
 	else if (tok->path[0] == '.' && tok->path[1] == '/')
 		check_path_permission(tok, node, shell);

@@ -6,7 +6,7 @@
 /*   By: junykim <junykim@student.42seoul.kr>       +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/12/28 13:41:12 by junykim           #+#    #+#             */
-/*   Updated: 2023/01/08 21:23:41 by junykim          ###   ########.fr       */
+/*   Updated: 2023/01/08 22:26:39 by junykim          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,6 +74,7 @@ typedef struct s_shell
 	int		last_cmd_wstatus;
 	int		last_cmd_pid;
 	t_list	*pid_list;
+	char	*cd_pwd;
 }	t_shell;
 
 /*
@@ -85,7 +86,7 @@ typedef struct s_shell
 // ================================
 //			execute.c
 // ================================
-typedef	void(*t_callback_func)(t_tree *, t_shell *);
+typedef void	(*t_callback_func) (t_tree *, t_shell *);
 void	delete_node(t_tree *node, t_shell *shell);
 void	execute_node(t_tree *node, t_shell *shell);
 int		is_builtin(t_token *tok);
@@ -120,16 +121,17 @@ int		open_redirection(int *pipe_fd, t_list *redir_list, \
 			t_shell *shell);
 
 // ================================
-//				.c
+//			execute_util.c
 // ================================
-void	delete_token();
+void	delete_token(t_token *tok);
 
 // ================================
 //				error.c
 // ================================
 void	return_error_2(char *arg, char *msg, int nb);
-void	ft_perror(char  *string);
+void	ft_perror(char *string);
 int		return_error_export(char *cmd, char *arg, char *msg, int nb);
+void	return_error_builtin(char *cmd, char *arg, char *msg, int nb);
 
 // ================================
 //				util.c
@@ -138,6 +140,7 @@ void	wait_every_pid(t_shell *shell);
 void	*new_pid(pid_t pid);
 int		find_in_env(t_shell *shell, char *var_env);
 int		ft_isspace(int n);
+int		ft_destlen(char **s);
 
 // ================================
 //			export_util.c
